@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>For You</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Quicksand:wght@400;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Quicksand', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 30%, #f48fb1 70%, #ec407a 100%);
+      overflow: hidden;
+      height: 100vh;
+      color: #4a1a2e;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* ===== FLOATING HEARTS BACKGROUND ===== */
+    .hearts-bg {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .floating-heart {
+      position: absolute;
+      bottom: -60px;
+      animation: floatUp linear infinite;
+      opacity: 0.5;
+    }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 0.5; }
+      50%  { opacity: 0.7; }
+      100% { transform: translateY(-110vh) rotate(360deg) scale(0.5); opacity: 0; }
+    }
+
+    /* ===== SECTIONS ===== */
+    .section {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 20px;
+    }
+
+    /* ===== LANDING / PHOTO SECTION ===== */
+    #landing { text-align: center; }
+
+    #landing h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      color: #ad1457;
+      margin-bottom: 10px;
+      animation: fadeInDown 1s ease-out;
+    }
+
+    #landing .subtitle {
+      font-size: clamp(1rem, 2.5vw, 1.4rem);
+      color: #6a1b3a;
+      margin-bottom: 30px;
+      animation: fadeInDown 1s ease-out 0.3s backwards;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .gallery {
+      display: flex;
+      justify-content: center;
+      margin: 0 auto 20px;
+      animation: fadeIn 1.2s ease-out 0.6s backwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .gallery-item {
+      width: 220px;
+      height: 220px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(173, 20, 87, 0.25);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      background: #f8bbd0;
+    }
+
+    .gallery-item:hover {
+      transform: scale(1.05) rotate(-2deg);
+      box-shadow: 0 12px 35px rgba(173, 20, 87, 0.35);
+    }
+
+    .gallery-item img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: opacity 0.15s ease;
+    }
+
+    .gallery-item .placeholder {
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      background: linear-gradient(135deg, #f8bbd0, #f48fb1);
+    }
+
+    /* ===== INTRO VIDEO ===== */
+    #intro-video-wrap {
+      margin: 20px 0;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(173, 20, 87, 0.25);
+      transition: opacity 0.8s ease;
+      max-width: 300px;
+      max-height: 600px;
+      opacity: 0;
+    }
+
+    #intro-video {
+      width: 100%;
+      display: block;
+      border-radius: 16px;
+      object-fit: cover;
+      max-height: 600px;
+    }
+
+    #main-content {
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    /* ===== QUESTION SECTION ===== */
+    #question {
+      text-align: center;
+      position: relative;
+    }
+
+    .question-text {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      color: #880e4f;
+      margin-bottom: 16px;
+      transition: all 0.5s ease;
+      line-height: 1.3;
+      animation: fadeInDown 1s ease-out 0.9s backwards;
+    }
+
+    /* Toast message that pops up above the buttons */
+    .toast {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(255, 255, 255, 0.95);
+      color: #880e4f;
+      padding: 16px 32px;
+      border-radius: 16px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      box-shadow: 0 8px 30px rgba(173, 20, 87, 0.3);
+      opacity: 0;
+      transition: all 0.4s ease;
+      pointer-events: none;
+      z-index: 500;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .buttons-container {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      position: relative;
+      min-height: 80px;
+      animation: fadeIn 1s ease-out 1.2s backwards;
+    }
+
+    .btn {
+      padding: 16px 48px;
+      font-family: 'Quicksand', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+      min-width: 130px;
+      text-align: center;
+    }
+
+    .btn-yes {
+      background: linear-gradient(135deg, #e91e63, #c2185b);
+      color: white;
+      box-shadow: 0 6px 20px rgba(233, 30, 99, 0.4);
+    }
+
+    .btn-yes:hover {
+      transform: scale(1.08);
+      box-shadow: 0 8px 28px rgba(233, 30, 99, 0.55);
+    }
+
+    /* Yes button pulsing to draw attention */
+    @keyframes yesPulse {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.1); }
+    }
+
+    .btn-yes.pulsing {
+      animation: yesPulse 1s ease-in-out infinite;
+    }
+
+    .btn-no {
+      background: linear-gradient(135deg, #78909c, #546e7a);
+      color: white;
+      box-shadow: 0 6px 20px rgba(84, 110, 122, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .btn-no:hover {
+      background: linear-gradient(135deg, #90a4ae, #607d8b);
+    }
+
+    /* Spinning animation for chaos stage */
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .btn-no.spinning {
+      animation: spin 0.5s linear infinite;
+    }
+
+    /* Decoy No buttons that flee */
+    .decoy-no {
+      position: fixed;
+      padding: 16px 48px;
+      font-family: 'Quicksand', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #78909c, #546e7a);
+      color: white;
+      box-shadow: 0 6px 20px rgba(84, 110, 122, 0.3);
+      z-index: 100;
+      min-width: 130px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    /* Gift card flying across screen */
+    .gift-card {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 600;
+      pointer-events: none;
+      height: 250px;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+
+    @keyframes flyAcross {
+      0%   { left: -350px; opacity: 1; }
+      100% { left: calc(100vw + 50px); opacity: 1; }
+    }
+
+    /* ===== CELEBRATION SECTION ===== */
+    #celebration {
+      display: none;
+      text-align: center;
+      height: 100vh;
+    }
+
+    #celebration.active {
+      display: flex;
+    }
+
+    .celebration-text {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(2.4rem, 7vw, 4.5rem);
+      color: #ad1457;
+      animation: celebPulse 1.5s ease-in-out infinite alternate;
+      margin-bottom: 20px;
+    }
+
+    @keyframes celebPulse {
+      from { transform: scale(1); }
+      to   { transform: scale(1.06); }
+    }
+
+    .celebration-sub {
+      font-size: clamp(1.1rem, 3vw, 1.5rem);
+      color: #6a1b3a;
+      margin-bottom: 30px;
+    }
+
+    .no-count {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.85rem;
+      color: #6a1b3a;
+      opacity: 0.8;
+      z-index: 1;
+    }
+
+    .celebration-gallery {
+      display: flex;
+      justify-content: center;
+      margin: 0 auto;
+    }
+
+    .celebration-gallery .gallery-item {
+      border: 4px solid #e91e63;
+      border-radius: 20px;
+      width: 220px;
+      height: 220px;
+    }
+
+    .telegram-link {
+      margin-top: 24px;
+      display: inline-block;
+      padding: 12px 32px;
+      background: linear-gradient(135deg, #e91e63, #c2185b);
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      box-shadow: 0 6px 20px rgba(233, 30, 99, 0.4);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .telegram-link:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 28px rgba(233, 30, 99, 0.55);
+    }
+
+    #confetti-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 600px) {
+      .gallery-item { width: 160px; height: 160px; }
+      .buttons-container { gap: 16px; }
+      .btn { padding: 14px 36px; font-size: 1.1rem; }
+      .celebration-gallery .gallery-item { width: 160px; height: 160px; }
+      .toast { font-size: 1rem; padding: 12px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating hearts background -->
+  <div class="hearts-bg" id="hearts-bg"></div>
+
+  <!-- Toast message container -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ===== SECTION 1: Landing ===== -->
+  <div class="section" id="landing">
+    <h1>Hey Beautiful...</h1>
+
+    <!-- Intro video — plays for 4 seconds then fades out -->
+    <div id="intro-video-wrap">
+      <video id="intro-video" muted playsinline>
+        <source src="photos/vid.MOV" type="video/quicktime">
+        <source src="photos/vid.MOV" type="video/mp4">
+      </video>
+    </div>
+
+    <!-- Main content — hidden until video finishes -->
+    <div id="main-content" style="display: none;">
+      <div class="gallery">
+        <div class="gallery-item" id="slideshow">
+          <img id="slideshow-img" src="photos/banff.jpg" alt="Us" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="placeholder" style="display:none;">&#128149;</div>
+        </div>
+      </div>
+
+      <p class="question-text" id="question-text">Will you be my Valentine?</p>
+
+      <div class="buttons-container" id="buttons-container">
+        <button class="btn btn-yes" id="btn-yes" onclick="sayYes()">Yes</button>
+        <button class="btn btn-no" id="btn-no">No</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 3: Celebration ===== -->
+  <div class="section" id="celebration">
+    <!-- CUSTOMIZE: Change the celebration messages -->
+    <p class="celebration-text" id="celeb-text">I knew you'd say yes!</p>
+    <p class="celebration-sub" id="celeb-sub">Happy Valentine's Day, sweetie &#10084;&#65039;</p>
+    <div class="celebration-gallery" id="celebration-gallery"></div>
+    <a href="https://t.me/tontonail" target="_blank" class="telegram-link">Let me know you saw this &#128140;</a>
+  </div>
+
+  <canvas id="confetti-canvas"></canvas>
+
+  <script>
+    /* ==================================================
+       FLOATING HEARTS BACKGROUND
+       ================================================== */
+    (function() {
+      var container = document.getElementById('hearts-bg');
+      var emojis = ['\u2764\uFE0F', '\uD83D\uDC95', '\uD83D\uDC96', '\uD83D\uDC97', '\uD83D\uDC98', '\uD83D\uDC9D', '\uD83D\uDC9E', '\uD83E\uDE77'];
+      for (var i = 0; i < 60; i++) {
+        var h = document.createElement('div');
+        h.className = 'floating-heart';
+        h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        h.style.left = Math.random() * 100 + '%';
+        h.style.fontSize = (Math.random() * 20 + 14) + 'px';
+        h.style.animationDuration = (Math.random() * 8 + 8) + 's';
+        h.style.animationDelay = (Math.random() * 10) + 's';
+        container.appendChild(h);
+      }
+    })();
+
+    /* ==================================================
+       INTRO VIDEO — play 4 seconds, then fade to main content
+       ================================================== */
+    (function() {
+      var videoWrap = document.getElementById('intro-video-wrap');
+      var video = document.getElementById('intro-video');
+      var mainContent = document.getElementById('main-content');
+
+      /* Start video after 1s delay, fade in */
+      setTimeout(function() {
+        video.play();
+        videoWrap.style.opacity = '1';
+      }, 1000);
+
+      /* After 1s delay + 4s playing = 5s total, fade out video and show main content */
+      setTimeout(function() {
+        videoWrap.style.opacity = '0';
+        setTimeout(function() {
+          videoWrap.style.display = 'none';
+          video.pause();
+          mainContent.style.display = '';
+        }, 800);
+      }, 5000);
+    })();
+
+    /* ==================================================
+       SLIDESHOW — loops through photos
+       ================================================== */
+    /* CUSTOMIZE: Add or remove photo paths here */
+    /* CUSTOMIZE: Add or remove photo paths here */
+    var photoSources = [
+      'photos/banff.jpg',
+      'photos/aurora.jpg',
+      'photos/rocky.jpg',
+      'photos/lupin.jpg',
+      'photos/mueller.jpg',
+      'photos/canada.jpg'
+    ];
+    var slideIndex = 0;
+    var slideshowImg = document.getElementById('slideshow-img');
+
+    function updateSlideshow() {
+      /* Update all slideshow images (original + any clones) */
+      var imgs = document.querySelectorAll('#slideshow-img, .celebration-gallery img');
+      imgs.forEach(function(img) {
+        img.style.opacity = '0';
+      });
+      setTimeout(function() {
+        var src = photoSources[slideIndex];
+        var pos = src.indexOf('rocky') !== -1 ? 'left center' : 'center center';
+        imgs.forEach(function(img) {
+          img.src = src;
+          img.style.objectPosition = pos;
+          img.style.display = '';
+          img.style.opacity = '1';
+        });
+      }, 150);
+    }
+
+    setInterval(function() {
+      slideIndex = (slideIndex + 1) % photoSources.length;
+      updateSlideshow();
+    }, 3000);
+
+    /* ==================================================
+       ELEMENTS
+       ================================================== */
+    var btnNo = document.getElementById('btn-no');
+    var btnYes = document.getElementById('btn-yes');
+    var questionText = document.getElementById('question-text');
+    var buttonsContainer = document.getElementById('buttons-container');
+    var toastEl = document.getElementById('toast');
+
+    /* ==================================================
+       NO BUTTON — ESCALATING SEQUENCE
+       --------------------------------------------------
+       Stage 0: "Are you sure?" — text change
+       Stage 1: Small dodges away from cursor
+       Stage 2: No shrinks, Yes grows & pulses
+       Stage 3: Funny messages on each click
+       Stage 4: Visual chaos — spin, swap, decoy buttons
+       Stage 5: "You chose YES" — forced celebration
+       ================================================== */
+    var noStage = 0;
+    var dodgeAmount = 0;
+    var noClickCount = 0;
+
+    /* Messages shown in sequence */
+    var funnyMessages = [
+      "Oops\u2026 I think you misclicked \uD83D\uDE0C Try again?",
+      "Hmm\u2026 let's pretend that didn't happen.",
+      "No? Will a gift card change your mind??"
+    ];
+
+    /* --- Toast helper --- */
+    var toastTimer = null;
+    function showToast(msg, duration) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function() {
+        toastEl.classList.remove('show');
+      }, duration || 2000);
+    }
+
+    /* --- Click handler: advances through stages --- */
+    btnNo.addEventListener('click', function(e) {
+      e.preventDefault();
+      noClickCount++;
+      noStage++;
+      applyStage();
+    });
+
+    /* --- Touch support for mobile --- */
+    btnNo.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      btnNo.click();
+    });
+
+    function applyStage() {
+      switch (noStage) {
+
+        /* Stage 1: Button says "Are you sure?" */
+        case 1:
+          btnNo.textContent = 'Are you sure?';
+          break;
+
+        /* Stage 2: First funny message + dodging starts */
+        case 2:
+          btnNo.textContent = 'No';
+          dodgeAmount = 150;
+          enableDodging();
+          showToast(funnyMessages[0], 1000);
+          break;
+
+        /* Stage 3: Second funny message + shrink/pulse */
+        case 3:
+          dodgeAmount = 200;
+          btnNo.style.transform = 'scale(0.8)';
+          btnNo.style.opacity = '0.8';
+          btnYes.classList.add('pulsing');
+          btnYes.style.padding = '20px 60px';
+          btnYes.style.fontSize = '1.5rem';
+          showToast(funnyMessages[1], 1000);
+          break;
+
+        /* Stage 4: Gift card message + flash */
+        case 4:
+          btnNo.style.transform = 'scale(0.7)';
+          dodgeAmount = 120;
+          showToast(funnyMessages[2], 3500);
+          flashGiftCard();
+          break;
+
+        /* Stage 5: Visual chaos — spin, swap positions, spawn fleeing decoys */
+        case 5:
+          disableDodging();
+
+          /* Spin the No button */
+          btnNo.classList.add('spinning');
+          btnNo.style.transform = '';
+          btnNo.style.opacity = '1';
+
+          /* Swap Yes and No positions */
+          buttonsContainer.insertBefore(btnNo, btnYes);
+
+          /* Spawn fleeing decoy No buttons */
+          spawnDecoys(5);
+
+          break;
+
+        /* Stage 6+: Final — clicking No turns into Yes */
+        default:
+          btnNo.classList.remove('spinning');
+          btnNo.textContent = 'Yes';
+          btnNo.style.background = 'linear-gradient(135deg, #e91e63, #c2185b)';
+          showToast("You chose YES \uD83D\uDC96", 1000);
+          /* Short delay then celebrate */
+          setTimeout(function() {
+            sayYes();
+          }, 1000);
+          break;
+      }
+    }
+
+    /* ==================================================
+       DODGING — No button subtly moves on mouseover
+       ================================================== */
+    var dodgingEnabled = false;
+
+    var dodgeTimer = null;
+
+    function enableDodging() {
+      if (dodgingEnabled) return;
+      dodgingEnabled = true;
+      btnNo.addEventListener('mouseenter', dodge);
+
+      /* Stop dodging after 7 seconds */
+      clearTimeout(dodgeTimer);
+      dodgeTimer = setTimeout(function() {
+        disableDodging();
+        showToast("Ok I'll stop running \uD83E\uDD7A", 1500);
+      }, 7000);
+    }
+
+    function disableDodging() {
+      dodgingEnabled = false;
+      btnNo.removeEventListener('mouseenter', dodge);
+      clearTimeout(dodgeTimer);
+    }
+
+    function dodge() {
+      if (!dodgingEnabled) return;
+      /* Small random offset — annoying but not impossible */
+      var dx = (Math.random() - 0.5) * dodgeAmount * 2;
+      var dy = (Math.random() - 0.5) * dodgeAmount * 2;
+
+      /* Get current position and keep in viewport */
+      var rect = btnNo.getBoundingClientRect();
+      var newLeft = rect.left + dx;
+      var newTop = rect.top + dy;
+      var maxX = window.innerWidth - rect.width - 10;
+      var maxY = window.innerHeight - rect.height - 10;
+      newLeft = Math.max(10, Math.min(newLeft, maxX));
+      newTop = Math.max(10, Math.min(newTop, maxY));
+
+      btnNo.style.position = 'fixed';
+      btnNo.style.zIndex = '100';
+      btnNo.style.left = newLeft + 'px';
+      btnNo.style.top = newTop + 'px';
+    }
+
+    /* ==================================================
+       GIFT CARD — flies across the screen left to right
+       ================================================== */
+    function flashGiftCard() {
+      var card = document.createElement('img');
+      card.className = 'gift-card';
+      card.src = 'photos/aritzia.jpg';
+      card.style.animation = 'flyAcross 3s linear forwards';
+      document.body.appendChild(card);
+      setTimeout(function() { card.remove(); }, 3100);
+    }
+
+    /* ==================================================
+       DECOY NO BUTTONS — scatter around screen, stay clickable
+       ================================================== */
+    function spawnDecoys(count) {
+      var vw = window.innerWidth;
+      var vh = window.innerHeight;
+
+      for (var i = 0; i < count; i++) {
+        var decoy = document.createElement('button');
+        decoy.className = 'decoy-no';
+        decoy.textContent = 'No';
+
+        /* Place at random positions around the screen */
+        var x = 20 + Math.random() * (vw - 170);
+        var y = 20 + Math.random() * (vh - 80);
+        decoy.style.left = x + 'px';
+        decoy.style.top = y + 'px';
+        decoy.style.pointerEvents = 'auto';
+        decoy.style.cursor = 'pointer';
+        document.body.appendChild(decoy);
+
+        /* Clicking a decoy counts as a No click */
+        decoy.addEventListener('click', function() {
+          noClickCount++;
+          this.textContent = 'Nope!';
+          var el = this;
+          setTimeout(function() { el.textContent = 'No'; }, 300);
+        });
+      }
+    }
+
+    /* ==================================================
+       "YES" — CELEBRATION (always available)
+       ================================================== */
+    function sayYes() {
+      document.getElementById('landing').style.display = 'none';
+      toastEl.classList.remove('show');
+
+      var celeb = document.getElementById('celebration');
+      celeb.classList.add('active');
+
+      /* Show the No click count at the bottom */
+      if (noClickCount > 0) {
+        var noCountEl = document.createElement('div');
+        noCountEl.className = 'no-count';
+        noCountEl.textContent = 'You clicked No: ' + noClickCount + ' time' + (noClickCount === 1 ? '' : 's') + ' \uD83D\uDE2E\u200D\uD83D\uDCA8';
+        document.body.appendChild(noCountEl);
+      }
+
+      /* Clone the slideshow into celebration */
+      var slideItem = document.getElementById('slideshow');
+      var celebGallery = document.getElementById('celebration-gallery');
+      celebGallery.appendChild(slideItem.cloneNode(true));
+
+      window.scrollTo({ top: 0 });
+      launchConfetti();
+
+      /* Clean up any lingering decoys */
+      document.querySelectorAll('.decoy-no').forEach(function(d) { d.remove(); });
+    }
+
+    /* ==================================================
+       CONFETTI + HEARTS EXPLOSION
+       ================================================== */
+    function launchConfetti() {
+      var canvas = document.getElementById('confetti-canvas');
+      var ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      var particles = [];
+      var heartEmojis = ['\u2764\uFE0F', '\uD83D\uDC95', '\uD83D\uDC96', '\uD83D\uDC97', '\uD83C\uDF89', '\u2728', '\uD83C\uDF1F'];
+      var colors = ['#e91e63', '#f44336', '#ff5722', '#ff9800', '#ffc107', '#e040fb', '#7c4dff', '#448aff', '#69f0ae'];
+
+      function burst(cx, cy, n) {
+        for (var i = 0; i < n; i++) {
+          var isHeart = Math.random() < 0.3;
+          particles.push({
+            x: cx + (Math.random() - 0.5) * 100,
+            y: cy,
+            vx: (Math.random() - 0.5) * 18,
+            vy: (Math.random() - 1) * 16 - 4,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            size: Math.random() * 8 + 4,
+            rotation: Math.random() * 360,
+            rotationSpeed: (Math.random() - 0.5) * 12,
+            gravity: 0.12 + Math.random() * 0.08,
+            opacity: 1,
+            decay: 0.003 + Math.random() * 0.005,
+            isHeart: isHeart,
+            emoji: heartEmojis[Math.floor(Math.random() * heartEmojis.length)]
+          });
+        }
+      }
+
+      burst(canvas.width / 2, canvas.height / 2, 200);
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        var alive = false;
+
+        for (var i = 0; i < particles.length; i++) {
+          var p = particles[i];
+          if (p.opacity <= 0) continue;
+          alive = true;
+
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += p.gravity;
+          p.vx *= 0.99;
+          p.rotation += p.rotationSpeed;
+          p.opacity -= p.decay;
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rotation * Math.PI / 180);
+          ctx.globalAlpha = Math.max(0, p.opacity);
+
+          if (p.isHeart) {
+            ctx.font = p.size * 2.5 + 'px serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(p.emoji, 0, 0);
+          } else {
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+          }
+
+          ctx.restore();
+        }
+
+        if (alive) {
+          requestAnimationFrame(animate);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+
+      animate();
+
+      /* Second burst from below */
+      setTimeout(function() {
+        for (var i = 0; i < 100; i++) {
+          var isHeart = Math.random() < 0.4;
+          particles.push({
+            x: Math.random() * canvas.width,
+            y: canvas.height + 10,
+            vx: (Math.random() - 0.5) * 8,
+            vy: -(Math.random() * 14 + 6),
+            color: colors[Math.floor(Math.random() * colors.length)],
+            size: Math.random() * 8 + 4,
+            rotation: Math.random() * 360,
+            rotationSpeed: (Math.random() - 0.5) * 12,
+            gravity: 0.1 + Math.random() * 0.08,
+            opacity: 1,
+            decay: 0.004 + Math.random() * 0.004,
+            isHeart: isHeart,
+            emoji: heartEmojis[Math.floor(Math.random() * heartEmojis.length)]
+          });
+        }
+        animate();
+      }, 1000);
+    }
+
+    /* Handle resize for confetti canvas */
+    window.addEventListener('resize', function() {
+      var canvas = document.getElementById('confetti-canvas');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
