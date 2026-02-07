@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>For You</title>
+  <title>ily kalkal</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Quicksand:wght@400;600;700&display=swap');
 
@@ -488,6 +488,12 @@
     ];
     var slideIndex = 0;
     var slideshowImg = document.getElementById('slideshow-img');
+
+    /* Prefetch all images so transitions are instant */
+    photoSources.forEach(function(src) {
+      var img = new Image();
+      img.src = src;
+    });
 
     function updateSlideshow() {
       /* Update all slideshow images (original + any clones) */
